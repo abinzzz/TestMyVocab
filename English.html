@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>听力15类场景高频词</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f9f9f9; /* 柔和背景 */
+  color: #333;
+}
+
+h1 {
+  margin-top: 20px;
+  font-size: 2em;
+  color: #333;
+  text-align: center;
+}
+
+.controls {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.controls label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+select, button {
+  font-size: 14px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #e6f7ff;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+table th, table td {
+  text-align: left;
+  padding: 10px;
+}
+
+table tr:nth-child(even) {
+  background: #f1f1f1;
+}
+
+.english-word {
+  cursor: pointer;
+  color: #007BFF;
+  text-decoration: underline;
+}
+
+.test-container {
+  margin-top: 20px;
+  max-width: 800px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.test-item {
+  margin-bottom: 10px;
+}
+
+.test-item label {
+  display: inline-block;
+  width: 200px;
+  font-weight: bold;
+}
+
+.test-item input[type="text"] {
+  width: 200px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.result-correct {
+  color: green;
+  font-weight: bold;
+}
+
+.result-wrong {
+  color: red;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.hidden {
+  display: none;
+}
+
+.section-label {
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h1>词汇学习与默写测试</h1>
+
+<div class="controls">
+  <label>选择章节：
+    <select id="chapterSelect">
+      <option value="house">1. House-Renting</option>
+      <option value="travel">2. Traveling</option>
+      <option value="membership">3. Membership</option>
+      <option value="car">4. Car</option>
+      <option value="bank">5. Bank</option>
+      <option value="coursedelivery">6. Course Delivery</option>
+      <option value="assignment">7. Assignment</option>
+      <option value="library">8. Library</option>
+      <option value="collegefac">9. College Facilities</option>
+      <option value="economics">10. Economics</option>
+      <option value="biology">11. Biology</option>
+      <option value="agriculture">12. Agriculture</option>
+      <option value="environment">13. Environment</option>
+      <option value="geography">14. Geography</option>
+      <option value="chemistry">14. Chemistry</option>
+      <option value="map">15. Map</option>
+    </select>
+  </label>
+  
+  <label>选择部分：
+    <select id="sectionSelect">
+      <!-- 动态生成 -->
+    </select>
+  </label>
+
+  <button id="startTestBtn">开始默写测试</button>
+  <button id="endTestBtn" class="hidden">结束默写测试</button>
+</div>
+
+<div id="studyModeContainer">
+  <!-- 学习模式表格 -->
+</div>
+
+<div id="testModeContainer" class="hidden">
+  <div class="test-container" id="testItemsContainer"></div>
+  <button id="checkAnswersBtn">检查</button>
+  <div id="testResultContainer"></div>
+</div>
+
+<script>
+// 原有章节数据
+const houseData = {
+  "People": [
+    {en: "landlord", zh: "房东"},
+    {en: "landlady", zh: "（女）房东"},
+    {en: "tenant", zh: "房客"},
+    {en: "agent", zh: "中介"},
+    {en: "agency", zh: "中介"},
+    {en: "host family", zh: "寄宿家庭"},
+    {en: "guest", zh: "客人"},
+    {en: "neighbour", zh: "邻居"}
+  ],
+  "Fees": [
+    {en: "rent", zh: "租金"},
+    {en: "deposit", zh: "押金"},
+    {en: "utility bills", zh: "水电费"},
+    {en: "water/gas/electricity/telephone bill", zh: "水/燃气/电/电话费用"},
+    {en: "weekly/monthly", zh: "每周/每月"},
+    {en: "refundable", zh: "可退还的"},
+    {en: "insurance", zh: "保险"},
+    {en: "contract", zh: "合同"}
+  ],
+  "Location": [
+    {en: "downtown/city centre", zh: "市中心"},
+    {en: "suburbs/outskirts", zh: "郊区"},
+    {en: "urban/rural area", zh: "市区/郊区"},
+    {en: "north/south/east/west", zh: "北/南/东/西"},
+    {en: "northwest/southwest/northeast/southeast", zh: "西北/西南/东北/东南"},
+    {en: "northern", zh: "北方的"},
+    {en: "road/street/avenue", zh: "街道"}
+  ],
+  "Accommodation": [
+    {en: "property", zh: "房产"},
+    {en: "guest house", zh: "招待所"},
+    {en: "homestay", zh: "寄宿家庭"},
+    {en: "flat/apartment", zh: "公寓"},
+    {en: "studio apartment", zh: "单身公寓"},
+    {en: "single room", zh: "单人间"},
+    {en: "twin room", zh: "（双床）双人间"},
+    {en: "triple room", zh: "三人间"}
+  ],
+  "Diet": [
+    {en: "refreshments/snack", zh: "点心，零食"},
+    {en: "special food/dietary requirement", zh: "食物的特殊要求"},
+    {en: "food allergies/be allergic to", zh: "食物过敏"},
+    {en: "vegetarian", zh: "素食主义者"},
+    {en: "seafood", zh: "海鲜"}
+  ],
+  "Facility/Equipment/Apparatus": [
+    {en: "living room", zh: "客厅"},
+    {en: "dining room", zh: "饭厅"},
+    {en: "kitchen", zh: "厨房"},
+    {en: "kitchen-diner", zh: "（有就餐区的）厨房"},
+    {en: "bathroom", zh: "浴室"},
+    {en: "garden", zh: "花园"},
+    {en: "yard", zh: "院子"},
+    {en: "cloakroom", zh: "衣帽间"},
+    {en: "study", zh: "书房"},
+    {en: "garage", zh: "车库"},
+    {en: "car park", zh: "停车位"},
+    {en: "lift", zh: "电梯"},
+    {en: "fire gate/exit", zh: "紧急出口"},
+    {en: "air conditioner/conditioning", zh: "空调"},
+    {en: "heating", zh: "暖气"},
+    {en: "closed-circuit TV/video surveillance", zh: "闭路监控"}
+  ]
+};
+
+const travelData = {
+  "Travel Arrangement": [
+    {en: "travel agency", zh: "旅行社"},
+    {en: "tour guide", zh: "导游"},
+    {en: "guided tours", zh: "导游旅行"},
+    {en: "reserve/reservation", zh: "预定"},
+    {en: "book/booking", zh: "预定"},
+    {en: "recreation/entertainment/leisure", zh: "娱乐"}
+  ],
+  "Tourist Attraction": [
+    {en: "highlight", zh: "热点"},
+    {en: "rainforest", zh: "雨林"},
+    {en: "swamp/marsh", zh: "沼泽"},
+    {en: "wetland", zh: "湿地"},
+    {en: "desert", zh: "沙漠"},
+    {en: "grassland", zh: "草原"},
+    {en: "bush", zh: "灌木丛"},
+    {en: "waterfall", zh: "瀑布"},
+    {en: "viewpoint", zh: "观景点，制高点"},
+    {en: "viewing shelter", zh: "观景棚"},
+    {en: "historic(al) interest", zh: "历史遗迹"},
+    {en: "castle", zh: "城堡"},
+    {en: "cathedral", zh: "大教堂"},
+    {en: "botanical garden", zh: "植物园"},
+    {en: "art gallery", zh: "画廊"},
+    {en: "museum", zh: "博物馆"},
+    {en: "ancient temple", zh: "古寺"},
+    {en: "theme park", zh: "主题公园"},
+    {en: "organic farm", zh: "有机农场"},
+    {en: "aquarium", zh: "水族馆"},
+    {en: "undersea worlds", zh: "海底世界"},
+    {en: "amusement park", zh: "游乐园"},
+    {en: "orchard", zh: "果园"},
+    {en: "beach/coast/shore", zh: "沙滩、海滨"},
+    {en: "hot spring", zh: "温泉"},
+    {en: "water mill", zh: "水磨坊"},
+    {en: "dock", zh: "港口"},
+    {en: "dam", zh: "水坝"},
+    {en: "footbridge", zh: "人行小桥"},
+    {en: "Great Barrier Reef", zh: "大堡礁"},
+    {en: "Stonehenge", zh: "巨石阵"},
+    {en: "Sydney Opera House", zh: "悉尼歌剧院"},
+    {en: "Tower of London", zh: "伦敦塔"}
+  ],
+  "Activities": [
+    {en: "bushwalk", zh: "林中漫步"},
+    {en: "hiking", zh: "徒步旅行"},
+    {en: "trekking", zh: "跋涉"},
+    {en: "camping", zh: "野营"},
+    {en: "campsite", zh: "营地"},
+    {en: "cycling", zh: "骑自行车"},
+    {en: "rock climbing/cliff walks", zh: "攀岩"}
+  ],
+  "Entertainment": [
+    {en: "musical instrument", zh: "乐器"},
+    {en: "keyboard", zh: "键盘"},
+    {en: "piano: pianist", zh: "钢琴：钢琴家"},
+    {en: "string instrument", zh: "弦乐器"},
+    {en: "violin: violinist", zh: "小提琴：小提琴家"},
+    {en: "cello: cellist", zh: "大提琴：大提琴家"},
+    {en: "guitar: guitarist", zh: "吉他：吉他手"},
+    {en: "flute", zh: "笛子"},
+    {en: "drum", zh: "鼓"},
+    {en: "pop", zh: "流行音乐"},
+    {en: "jazz", zh: "爵士乐"},
+    {en: "folk", zh: "民谣"},
+    {en: "easy listening", zh: "轻音乐"},
+    {en: "classical", zh: "古典音乐"},
+    {en: "live music", zh: "现场音乐"},
+    {en: "disco", zh: "跳舞厅"},
+    {en: "pub", zh: "酒吧"},
+    {en: "clubhouse", zh: "会所"},
+    {en: "concert hall", zh: "音乐厅"},
+    {en: "opera house", zh: "歌剧院"},
+    {en: "karaoke bars", zh: "卡拉OK"},
+    {en: "concert", zh: "音乐会"},
+    {en: "cinema", zh: "电影院"},
+    {en: "Studio Theatre", zh: "演播剧场"},
+    {en: "theatre", zh: "剧院"},
+    {en: "theatrical events", zh: "戏剧"},
+    {en: "theatrette", zh: "小剧院"},
+    {en: "exhibition", zh: "展览"},
+    {en: "department stores", zh: "百货商场"}
+  ],
+  "Transportation": [
+    {en: "vehicle", zh: "车辆"},
+    {en: "four-wheel drive", zh: "四驱车"},
+    {en: "jeep", zh: "吉普车"},
+    {en: "minibus", zh: "中巴"},
+    {en: "coach", zh: "长途客车"},
+    {en: "railway station", zh: "火车站"},
+    {en: "Central Station", zh: "中央车站"},
+    {en: "airport", zh: "机场"},
+    {en: "river cruise", zh: "游艇游览"},
+    {en: "helicopter", zh: "直升飞机"},
+    {en: "shuttle bus", zh: "班车"},
+    {en: "cab/taxi", zh: "计程车"}
+  ]
+};
+
+// 新增章节数据（按照用户提供的表格整理）
+const membershipData = {
+  "Divisions": [
+    {en: "sports club", zh: "健身俱乐部"},
+    {en: "fitness centre", zh: "健身俱乐部"},
+    {en: "gym", zh: "健身房"},
+    {en: "reception", zh: "前台"},
+    {en: "locker room", zh: "更衣室"},
+    {en: "keep-fit studio", zh: "健身室"},
+    {en: "dance studio", zh: "舞蹈教室"},
+    {en: "tennis court", zh: "网球场"},
+    {en: "swimming pool", zh: "游泳池"},
+    {en: "salad bar", zh: "沙拉吧"}
+  ],
+  "Staff": [
+    {en: "receptionist", zh: "前台接待人员"},
+    {en: "coach/trainer", zh: "教练"},
+    {en: "instructor", zh: "指导教练"},
+    {en: "dietician", zh: "饮食专家"},
+    {en: "internal member", zh: "内部人员"},
+    {en: "external member", zh: "外部人员"}
+  ],
+  "Registration": [
+    {en: "application form", zh: "申请表"},
+    {en: "reference number", zh: "档案号"},
+    {en: "passport photo", zh: "护照照片"},
+    {en: "documents for ID/ID card", zh: "证明文件"},
+    {en: "drivers license", zh: "驾照"},
+    {en: "passport", zh: "护照"},
+    {en: "studentcard", zh: "学生证"},
+    {en: "bank statement", zh: "银行对账单"},
+    {en: "utility bills/water/electricity/phone/gas", zh: "水电费账单"},
+    {en: "reference letter from employer", zh: "雇主证明信"},
+    {en: "joining fee", zh: "入会费"},
+    {en: "annual fee", zh: "年费"}
+  ],
+  "Team Sports": [
+    {en: "soccer/football", zh: "足球"},
+    {en: "beach volleyball", zh: "沙滩排球"},
+    {en: "basketball", zh: "篮球"},
+    {en: "baseball", zh: "棒球"},
+    {en: "hockey", zh: "曲棍球"},
+    {en: "handball", zh: "手球"}
+  ],
+  "Ball Games": [
+    {en: "golf", zh: "高尔夫"},
+    {en: "badminton", zh: "羽毛球"},
+    {en: "table tennis", zh: "乒乓球"}
+  ],
+  "Racket Ball": [
+    {en: "tennis", zh: "网球"},
+    {en: "squash", zh: "壁球"}
+  ],
+  "Exercise": [
+    {en: "boxing", zh: "拳击"},
+    {en: "kick-boxing", zh: "搏击"},
+    {en: "judo", zh: "柔道"},
+    {en: "yoga", zh: "瑜伽"},
+    {en: "jogging", zh: "慢跑"},
+    {en: "aerobics", zh: "有氧运动"},
+    {en: "stretch class", zh: "拉伸运动"}
+  ]
+};
+
+const carData = {
+  "Car": [
+    {en: "make", zh: "品牌，型号"},
+    {en: "model", zh: "型号"},
+    {en: "gear change", zh: "变速器"},
+    {en: "manual", zh: "手动的"},
+    {en: "automatic", zh: "自动的"},
+    {en: "top speed", zh: "最高速度"},
+    {en: "mileage", zh: "里程数"},
+    {en: "instrument panel", zh: "仪表盘"},
+    {en: "part exchange", zh: "部分抵换"},
+    {en: "manufacture", zh: "厂商"},
+    {en: "engine size", zh: "发动机排量"},
+    {en: "frame", zh: "车架"},
+    {en: "wheel, front, rear", zh: "车轮（前轮，后轮）"},
+    {en: "steering wheel", zh: "方向盘"},
+    {en: "car bumper", zh: "保险杠"},
+    {en: "insurance company", zh: "保险公司"}
+  ]
+};
+
+const bankData = {
+  "Payment": [
+    {en: "cash", zh: "现金"},
+    {en: "check/cheque", zh: "支票"},
+    {en: "credit card", zh: "信用卡"},
+    {en: "(VISA, MASTER, American Express)", zh: "（国际卡）"}
+  ],
+  "Currency": [
+    {en: "foreign currency", zh: "外汇"},
+    {en: "exchange rate", zh: "汇率"},
+    {en: "pound", zh: "英镑"},
+    {en: "dollar", zh: "美元"},
+    {en: "euro", zh: "欧元"}
+  ],
+  "Opening an Account": [
+    {en: "current account", zh: "活期账户"},
+    {en: "deposit account", zh: "定期账户"},
+    {en: "joint account", zh: "联合账户"},
+    {en: "instant account", zh: "速成账户"},
+    {en: "select account", zh: "高级账户"},
+    {en: "opening sum", zh: "开户金额"},
+    {en: "identity security", zh: "身份认证"},
+    {en: "bank statement", zh: "银行对账单"}
+  ],
+  "Transaction": [
+    {en: "deposit", zh: "存款"},
+    {en: "withdraw", zh: "取款"},
+    {en: "overdraft/overdraw", zh: "透支"},
+    {en: "balance", zh: "余额"},
+    {en: "interest", zh: "利息"},
+    {en: "interest rate", zh: "利率"},
+    {en: "teller", zh: "出纳"},
+    {en: "transfer", zh: "转账"},
+    {en: "loan", zh: "贷款"}
+  ]
+};
+
+const courseDeliveryData = {
+  "Faculty": [
+    {en: "tutor", zh: "导师"},
+    {en: "lecturer", zh: "讲师"},
+    {en: "convener", zh: "老师"},
+    {en: "counselor", zh: "顾问"},
+    {en: "principal", zh: "校长"},
+    {en: "director", zh: "主任"},
+    {en: "staff", zh: "员工"}
+  ],
+  "Sessions": [
+    {en: "enroll", zh: "报名参加"},
+    {en: "session", zh: "课"},
+    {en: "tutorial", zh: "辅导课"},
+    {en: "lecture", zh: "讲座"},
+    {en: "seminar", zh: "研讨会"},
+    {en: "group discussion", zh: "小组讨论"},
+    {en: "workshop", zh: "讨论会"},
+    {en: "diploma course", zh: "文凭课程"},
+    {en: "modular course", zh: "模块课程"},
+    {en: "training session", zh: "培训课程"},
+    {en: "refresher course", zh: "复习课程"},
+    {en: "intensive course", zh: "强化课程"},
+    {en: "studies", zh: "研究"},
+    {en: "semester/term", zh: "学期"},
+    {en: "course outline", zh: "课程大纲"},
+    {en: "handout", zh: "讲义"},
+    {en: "orientation week", zh: "学习指导周"}
+  ],
+  "Subject": [
+    {en: "Biology", zh: "生物"},
+    {en: "Biophysics", zh: "生理"},
+    {en: "Cartography", zh: "绘图法"},
+    {en: "Economics", zh: "经济学"},
+    {en: "Education", zh: "教育"},
+    {en: "Finance", zh: "金融"},
+    {en: "Geography", zh: "地理"},
+    {en: "Mathematics", zh: "数学"},
+    {en: "Marketing", zh: "市场"},
+    {en: "Politics", zh: "政治"},
+    {en: "Sociology", zh: "社会学"},
+    {en: "Statistics", zh: "统计学"},
+    {en: "Social Science", zh: "社会科学"},
+    {en: "Topography", zh: "地形学"}
+  ],
+  "Courses": [
+    {en: "Advanced English Studies", zh: "高级英语研究"},
+    {en: "General English", zh: "普通英语"},
+    {en: "Academic English", zh: "学术英语"},
+    {en: "Gender Studies", zh: "性别研究"},
+    {en: "Second Language Acquisition", zh: "第二语言学习"}
+  ],
+  "Education": [
+    {en: "primary school", zh: "小学"},
+    {en: "secondary school", zh: "初中"},
+    {en: "undergraduate", zh: "本科"},
+    {en: "postgraduate", zh: "研究生"},
+    {en: "Bachelor", zh: "学士"},
+    {en: "Master", zh: "硕士"},
+    {en: "Doctor", zh: "博士"}
+  ],
+  "Countries, Regions, and Languages": [
+    {en: "Australia Queensland", zh: "澳大利亚昆士兰"},
+    {en: "New South Wales", zh: "新南威尔士州"},
+    {en: "Portuguese", zh: "葡萄牙语"},
+    {en: "Spanish", zh: "西班牙语"},
+    {en: "Latin America", zh: "拉丁美洲"}
+  ]
+};
+
+const assignmentData = {
+  "Coursework": [
+    {en: "assignment", zh: "作业"},
+    {en: "essay", zh: "论文"},
+    {en: "report", zh: "报告"},
+    {en: "case study", zh: "案例分析"},
+    {en: "project", zh: "项目"},
+    {en: "presentation", zh: "演示，报告"},
+    {en: "dissertation", zh: "学位论文"},
+    {en: "experiment", zh: "实验"},
+    {en: "written work", zh: "书面作业"}
+  ],
+  "Requirements": [
+    {en: "deadline", zh: "最后期限"},
+    {en: "extension", zh: "延期"},
+    {en: "submit/hand in", zh: "上交"},
+    {en: "length/word limit", zh: "篇幅/字数限制"},
+    {en: "title", zh: "标题"},
+    {en: "chapter/section", zh: "章，节"},
+    {en: "bibliography", zh: "参考书目"},
+    {en: "draft", zh: "初稿"},
+    {en: "typos", zh: "拼写错误"},
+    {en: "layout", zh: "排版"},
+    {en: "contents page", zh: "目录"},
+    {en: "subheadings", zh: "副标题"},
+    {en: "formatting", zh: "格式"},
+    {en: "numbering", zh: "编码"},
+    {en: "page numbers", zh: "页码"},
+    {en: "headers", zh: "页眉"},
+    {en: "footers", zh: "页脚"},
+    {en: "bullet points", zh: "要点列举"}
+  ],
+  "Methodology": [
+    {en: "study", zh: "研究"},
+    {en: "branch", zh: "分支"},
+    {en: "identity", zh: "鉴定，验明"},
+    {en: "research", zh: "研究"},
+    {en: "investigation", zh: "调查"},
+    {en: "survey", zh: "调查"},
+    {en: "data/statistics/figure", zh: "数据"},
+    {en: "main methods", zh: "主要手段"},
+    {en: "questionnaire", zh: "问卷调查"},
+    {en: "response rate", zh: "回复率"},
+    {en: "interview", zh: "采访"},
+    {en: "telephone interview", zh: "电话采访"},
+    {en: "face-to-face interview", zh: "面对面的采访"},
+    {en: "taped interview", zh: "录音采访"},
+    {en: "observation", zh: "观察"}
+  ],
+  "Assessment": [
+    {en: "review", zh: "批改"},
+    {en: "evaluation", zh: "评估"},
+    {en: "marking criteria", zh: "评分标准"},
+    {en: "feedback", zh: "反馈"},
+    {en: "oral/written test", zh: "口（笔）试"},
+    {en: "placement test", zh: "分班考试"}
+  ]
+};
+
+const libraryData = {
+  "Loans": [
+    {en: "reference book", zh: "参考书"},
+    {en: "fiction", zh: "小说"},
+    {en: "textbooks", zh: "教材"},
+    {en: "periodical", zh: "期刊"},
+    {en: "current/back issue", zh: "现（过）刊"},
+    {en: "journal", zh: "学术期刊"},
+    {en: "newspaper/papers/local/national", zh: "报纸"},
+    {en: "magazine", zh: "杂志"},
+    {en: "category", zh: "种类"},
+    {en: "publisher", zh: "出版人，出版方"},
+    {en: "press", zh: "出版社"},
+    {en: "author", zh: "作者"},
+    {en: "multimedia materials", zh: "多媒体资料"},
+    {en: "audio-visual materials", zh: "音像材料"},
+    {en: "video", zh: "录像"},
+    {en: "cassette", zh: "磁带"},
+    {en: "tape", zh: "录像带"}
+  ],
+  "Procedure": [
+    {en: "borrowing/loan period", zh: "借阅期限"},
+    {en: "due date", zh: "还书日"},
+    {en: "overdue", zh: "过期"},
+    {en: "fines", zh: "罚款"},
+    {en: "renew", zh: "续借"},
+    {en: "recall", zh: "预借"}
+  ],
+  "Facilities": [
+    {en: "CD-ROM", zh: "只读光盘"},
+    {en: "database", zh: "数据库"},
+    {en: "Internet access", zh: "网络接入"},
+    {en: "laptop", zh: "笔记本电脑"},
+    {en: "scanner", zh: "扫描仪"},
+    {en: "photocopier", zh: "复印机"},
+    {en: "laser printer", zh: "激光打印机"},
+    {en: "microscope", zh: "显微镜"}
+  ]
+};
+
+const collegeFacilitiesData = {
+  "College Facilities": [
+    {en: "equipment room", zh: "器材室"},
+    {en: "media room", zh: "媒体室"},
+    {en: "resources room", zh: "资源室"},
+    {en: "computer center", zh: "计算机中心"},
+    {en: "laboratory", zh: "实验室"},
+    {en: "main hall", zh: "大厅，礼堂"},
+    {en: "lecture room", zh: "阶梯教室"},
+    {en: "lecture theater", zh: "演讲厅"},
+    {en: "drama theater", zh: "剧院"},
+    {en: "halls of residence", zh: "宿舍"},
+    {en: "living quarters", zh: "居住区"},
+    {en: "student health center", zh: "医务室"},
+    {en: "insurance center", zh: "保险中心"},
+    {en: "refectory", zh: "自助餐厅"},
+    {en: "canteen", zh: "自助餐厅"},
+    {en: "cafeteria", zh: "自助餐厅"},
+    {en: "dining room", zh: "食堂"},
+    {en: "diner", zh: "饭馆"},
+    {en: "nursery", zh: "托儿所"},
+    {en: "child care centre", zh: "托儿所"},
+    {en: "counseling center", zh: "咨询中心"}
+  ]
+};
+
+const economicsData = {
+  "Economics": [
+    {en: "overheads", zh: "经费"},
+    {en: "outlay", zh: "经费"},
+    {en: "investment", zh: "投资"},
+    {en: "capital", zh: "资本"},
+    {en: "strike", zh: "罢工"},
+    {en: "takeover", zh: "收购"},
+    {en: "issue", zh: "发行"},
+    {en: "stock", zh: "股票"},
+    {en: "share", zh: "股份"},
+    {en: "stock market", zh: "股市"},
+    {en: "market share", zh: "市场份额"},
+    {en: "outlet", zh: "商店"},
+    {en: "chain", zh: "连锁"},
+    {en: "retail", zh: "零售"},
+    {en: "wholesale", zh: "批发"},
+    {en: "distributer", zh: "分销商"},
+    {en: "marketing", zh: "市场营销"},
+    {en: "campaign", zh: "战略"},
+    {en: "advertising", zh: "广告"},
+    {en: "sales", zh: "销售额"},
+    {en: "profit", zh: "利润"},
+    {en: "product", zh: "产品"},
+    {en: "production", zh: "生产"},
+    {en: "manufacture", zh: "生产"},
+    {en: "manufacturer", zh: "出厂商"},
+    {en: "storehouse/warehouse", zh: "仓库"},
+    {en: "competition", zh: "竞争"},
+    {en: "cooperation", zh: "合作"},
+    {en: "interest rates", zh: "利率"},
+    {en: "training", zh: "培训"},
+    {en: "favorable terms", zh: "优惠的条款"},
+    {en: "innovation", zh: "创新"},
+    {en: "outdated", zh: "落后的"},
+    {en: "machinery", zh: "机器（总称）"},
+    {en: "management team/layers", zh: "管理层"},
+    {en: "employer", zh: "雇主"},
+    {en: "employee", zh: "雇员"},
+    {en: "staff", zh: "员工"},
+    {en: "applicant", zh: "申请者"},
+    {en: "corporate", zh: "公司"},
+    {en: "organization", zh: "组织"},
+    {en: "corporate crime", zh: "集团犯罪"},
+    {en: "embezzlement", zh: "盗用，侵吞"},
+    {en: "fraud", zh: "诈骗"},
+    {en: "import", zh: "进口"},
+    {en: "export", zh: "出口"}
+  ]
+};
+
+const biologyData = {
+  "Biology": [
+    {en: "species", zh: "物种"},
+    {en: "sub-species", zh: "亚种"},
+    {en: "gene pool", zh: "基因库"},
+    {en: "ancestor", zh: "祖先"},
+    {en: "descend", zh: "传承"},
+    {en: "breed", zh: "繁殖"},
+    {en: "rear", zh: "养育"},
+    {en: "extinction", zh: "灭绝"},
+    {en: "endanger", zh: "濒危"},
+    {en: "threaten", zh: "威胁"},
+    {en: "eradicate", zh: "灭绝"},
+    {en: "infest", zh: "寄生于"},
+    {en: "introduced animals", zh: "外来动物"},
+    {en: "wildlife reserve", zh: "野生动物保护区"},
+    {en: "nature reserve", zh: "自然保护区"},
+    {en: "sanctuary", zh: "保护区"},
+    {en: "refuge", zh: "保护区"},
+    {en: "habitat", zh: "栖息地"},
+    {en: "prohibit", zh: "禁止"},
+    {en: "quarantine service", zh: "检疫局"},
+    {en: "creature", zh: "生物"},
+    {en: "parasite", zh: "寄生虫"},
+    {en: "mite(s)", zh: "螨"},
+    {en: "pest", zh: "害虫"},
+    {en: "insect", zh: "昆虫"},
+    {en: "honey bee", zh: "蜜蜂"},
+    {en: "reptile", zh: "爬行动物"},
+    {en: "snake", zh: "蛇"},
+    {en: "dinosaur", zh: "恐龙"},
+    {en: "mammal", zh: "哺乳动物"},
+    {en: "lion", zh: "狮子"},
+    {en: "whale", zh: "鲸鱼"},
+    {en: "dolphin", zh: "海豚"},
+    {en: "shark", zh: "鲨鱼"},
+    {en: "kiwi", zh: "几维鸟"},
+    {en: "emus", zh: "鸸鹋"},
+    {en: "ostrich", zh: "鸵鸟"},
+    {en: "penguin", zh: "企鹅"},
+    {en: "pollinate", zh: "授粉"},
+    {en: "flora", zh: "植物群"},
+    {en: "sting", zh: "（昆虫）叮咬"},
+    {en: "sense of smell", zh: "嗅觉"},
+    {en: "vision", zh: "视觉，视野"},
+    {en: "eye-sight", zh: "视力"},
+    {en: "skeleton", zh: "骨骼"},
+    {en: "limbs", zh: "四肢"},
+    {en: "hoof", zh: "蹄子"},
+    {en: "horn", zh: "角"},
+    {en: "hair/fur", zh: "皮毛"},
+    {en: "skin/hide", zh: "兽皮"},
+    {en: "leather", zh: "皮革"},
+    {en: "mane", zh: "鬃毛"},
+    {en: "pouch", zh: "育儿袋"},
+    {en: "scale", zh: "鱼鳞"},
+    {en: "tail", zh: "尾巴"},
+    {en: "fins", zh: "鱼鳍"},
+    {en: "beak", zh: "喙"},
+    {en: "feather", zh: "羽毛"},
+    {en: "wings", zh: "翅膀"},
+    {en: "flightless", zh: "不会飞的"},
+    {en: "chick", zh: "雏鸟"},
+    {en: "hatch", zh: "孵化"},
+    {en: "pellets", zh: "坚硬小球，团粒"},
+    {en: "indigestible", zh: "无法消化的"}
+  ]
+};
+
+const agricultureData = {
+  "Agriculture": [
+    {en: "produce", zh: "农产品"},
+    {en: "livestock", zh: "牲畜"},
+    {en: "poultry", zh: "家禽"},
+    {en: "fishstock", zh: "养鱼业"},
+    {en: "cattle", zh: "牛群"},
+    {en: "herd", zh: "（兽）群"},
+    {en: "crops", zh: "农作物"},
+    {en: "cereal crops", zh: "谷物"},
+    {en: "wheat", zh: "小麦"},
+    {en: "barley", zh: "大麦"},
+    {en: "grain", zh: "谷粒"},
+    {en: "farmland", zh: "农地"},
+    {en: "plough", zh: "犁；耕地"},
+    {en: "cultivation", zh: "耕作"},
+    {en: "husbandry", zh: "农业，耕作"},
+    {en: "animal husbandry", zh: "畜牧"},
+    {en: "irrigation", zh: "灌溉"},
+    {en: "pot", zh: "罐子"},
+    {en: "pottery", zh: "陶器"},
+    {en: "clay", zh: "粘土"},
+    {en: "stone age", zh: "石器时代"},
+    {en: "Neolithic", zh: "新石器时代的"},
+    {en: "hunter-gatherer", zh: "狩猎和采集者"},
+    {en: "dwellings", zh: "居住地"},
+    {en: "dweller", zh: "居民"},
+    {en: "inhabitant", zh: "居民"},
+    {en: "craftsman", zh: "工匠"},
+    {en: "carpenter", zh: "木匠"},
+    {en: "merchant", zh: "商人"},
+    {en: "money-lender", zh: "借贷者"},
+    {en: "water wheel", zh: "水车"},
+    {en: "water mill", zh: "水磨坊"},
+    {en: "quarry", zh: "采石场"},
+    {en: "cottage", zh: "农舍"},
+    {en: "stables", zh: "马厩"},
+    {en: "iron forge", zh: "打铁铺，锻铁厂"},
+    {en: "furnace", zh: "熔炉"},
+    {en: "grinding shop", zh: "磨坊"},
+    {en: "engine room", zh: "发动机房"},
+    {en: "steam engine", zh: "蒸汽机"},
+    {en: "industry", zh: "工业"}
+  ]
+};
+
+const environmentData = {
+  "Environment": [
+    {en: "incineration plants", zh: "垃圾焚化场"},
+    {en: "landfill sites", zh: "垃圾填埋场"},
+    {en: "carbon dioxide emission", zh: "二氧化碳排放"},
+    {en: "greenhouse effect", zh: "温室效应"},
+    {en: "greenhouse gas", zh: "温室气体"},
+    {en: "fuel", zh: "燃料"},
+    {en: "coal", zh: "煤"},
+    {en: "firewood", zh: "柴火"},
+    {en: "fossil fuels", zh: "矿物燃料"},
+    {en: "carbon fuels", zh: "碳燃料"},
+    {en: "recycling", zh: "回收再利用"},
+    {en: "household waste", zh: "家庭垃圾"},
+    {en: "soil conditioner", zh: "土壤调节剂"},
+    {en: "recycling containers", zh: "回收容器"},
+    {en: "raw materials", zh: "原始材料"},
+    {en: "virgin materials", zh: "原材料"},
+    {en: "drop-off sites", zh: "回收站"},
+    {en: "bring banks", zh: "回收站"},
+    {en: "toughened glass", zh: "强化玻璃"},
+    {en: "plastic bags", zh: "塑料袋"},
+    {en: "water filtration", zh: "水处理"},
+    {en: "fiberglass manufacture", zh: "玻璃纤维制造"},
+    {en: "crushed glass", zh: "碎玻璃"},
+    {en: "polystyrene cups", zh: "聚苯乙烯杯子"},
+    {en: "temperature", zh: "温度"},
+    {en: "humid", zh: "潮湿"},
+    {en: "humidity", zh: "潮湿"},
+    {en: "landscape", zh: "风景，地形"},
+    {en: "vegetation", zh: "植被"},
+    {en: "climate change", zh: "气候变化"},
+    {en: "windy", zh: "有风的"},
+    {en: "inland", zh: "内陆的"},
+    {en: "shady", zh: "有树荫的"},
+    {en: "evaporate", zh: "蒸发"},
+    {en: "leaf", zh: "叶子"},
+    {en: "gust", zh: "阵风；狂风"},
+    {en: "canyon", zh: "峡谷"},
+    {en: "ocean currents", zh: "洋流"}
+  ]
+};
+
+const geographyData = {
+  "Geography": [
+    {en: "geographical features", zh: "地理特征"},
+    {en: "shallow-rooted species", zh: "浅根物种"},
+    {en: "physical features", zh: "物理特征"},
+    {en: "fossil", zh: "化石"},
+    {en: "dome", zh: "穹顶"},
+    {en: "territory", zh: "领地"},
+    {en: "census", zh: "人口普查"},
+    {en: "outcrop", zh: "露出地面的岩层"},
+    {en: "impact of tourism", zh: "旅游业影响"},
+    {en: "plain", zh: "平原"},
+    {en: "surface", zh: "地表"},
+    {en: "plateau(x)", zh: "高原"},
+    {en: "Earth", zh: "地球"},
+    {en: "cliff", zh: "悬崖"},
+    {en: "Planet", zh: "行星"},
+    {en: "landscape", zh: "地形"},
+    {en: "desert", zh: "沙漠"},
+    {en: "erode", zh: "腐蚀"},
+    {en: "monoliths", zh: "巨石"},
+    {en: "sandstone", zh: "砂岩"},
+    {en: "spires", zh: "尖顶"},
+    {en: "aboriginal", zh: "土著的"},
+    {en: "hectares", zh: "公顷"},
+    {en: "two-dimensional", zh: "二维的"},
+    {en: "caves", zh: "洞穴"},
+    {en: "lifestyle", zh: "生活方式"},
+    {en: "drought", zh: "干旱"},
+    {en: "density", zh: "密度"},
+    {en: "rainwater", zh: "雨水"},
+    {en: "myths and legends", zh: "神话和传说"},
+    {en: "vegetation", zh: "植被"},
+    {en: "dynamic", zh: "（人或事物）相互作用的方式"},
+    {en: "wildlife", zh: "野生动物"},
+    {en: "cause and effect", zh: "因果关系"},
+    {en: "technology", zh: "技术"},
+    {en: "pattern", zh: "模式"},
+    {en: "monitor", zh: "监查"},
+    {en: "interact", zh: "互动"},
+    {en: "migration", zh: "迁移"},
+    {en: "traffic density", zh: "交通密度"},
+    {en: "population density", zh: "人口密度"},
+    {en: "ocean floor", zh: "海床"},
+    {en: "landsat=landsatellite", zh: "大地卫星"},
+    {en: "satellite", zh: "卫星"},
+    {en: "distortion", zh: "扭曲"},
+    {en: "aerial", zh: "空气的"}
+  ]
+};
+
+const chemistryData = {
+  "Chemistry": [
+    {en: "carbon dioxide", zh: "二氧化碳"},
+    {en: "ozone", zh: "臭氧"},
+    {en: "metal", zh: "金属"},
+    {en: "iron", zh: "铁"},
+    {en: "mineral", zh: "矿物质"},
+    {en: "nutrition", zh: "营养物"},
+    {en: "salinity", zh: "盐分"},
+    {en: "carbohydrate", zh: "碳水化合物"},
+    {en: "amino acid", zh: "氨基酸"},
+    {en: "protein", zh: "蛋白质"},
+    {en: "vitamin", zh: "维生素"},
+    {en: "cholesterol", zh: "胆固醇"},
+    {en: "bitterness", zh: "苦味"},
+    {en: "sourness", zh: "酸味"},
+    {en: "kilocalorie", zh: "千卡"},
+    {en: "metabolism", zh: "新陈代谢"},
+    {en: "photosynthesis", zh: "光合作用"},
+    {en: "fossil", zh: "化石"},
+    {en: "toxin", zh: "毒素"},
+    {en: "MSG (Monosodium Glutamate)", zh: "味精"},
+    {en: "digest", zh: "消化"},
+    {en: "indigestible", zh: "无法消化的"}
+  ]
+};
+
+const mapData = {
+  "Map": [
+    {en: "walk past", zh: "路过"},
+    {en: "walk over", zh: "穿过"},
+    {en: "opposite", zh: "对面"},
+    {en: "facing", zh: "对面"},
+    {en: "in front of", zh: "在…前面，对面"},
+    {en: "cross the road at", zh: "（在马路）对面"},
+    {en: "corridor", zh: "走廊，过道"},
+    {en: "passage", zh: "走廊，过道"},
+    {en: "intersections", zh: "十字路口"},
+    {en: "junction", zh: "十字路口"},
+    {en: "crossroads", zh: "十字路口"},
+    {en: "main entrance", zh: "主入口"},
+    {en: "gate", zh: "大门"},
+    {en: "way in", zh: "入口"},
+    {en: "double door", zh: "双开门"},
+    {en: "exit", zh: "出口"},
+    {en: "box office", zh: "售票处"},
+    {en: "wicket", zh: "十字转门，闸机"},
+    {en: "turnstile", zh: "十字转门，闸机"},
+    {en: "ticket barrier", zh: "票闸机"},
+    {en: "top-right corner", zh: "右上角"},
+    {en: "corner", zh: "角落"},
+    {en: "right-angle", zh: "直角"},
+    {en: "at the end of", zh: "在…的尽头"},
+    {en: "in the direction of", zh: "朝着…方向"},
+    {en: "towards", zh: "朝着…方向"},
+    {en: "sandwiched between", zh: "在…中间"},
+    {en: "in the middle of", zh: "在…中间"},
+    {en: "turn off", zh: "转弯"},
+    {en: "bend", zh: "转弯"},
+    {en: "sharp bend", zh: "急转弯"},
+    {en: "turn", zh: "转弯"},
+    {en: "turning", zh: "转弯"},
+    {en: "footpath", zh: "人行道，小道"},
+    {en: "side path", zh: "人行道，小道"},
+    {en: "sidewalk", zh: "人行道，小道"},
+    {en: "pavement", zh: "人行道，小道"},
+    {en: "branch off from", zh: "分叉出…"},
+    {en: "lead off from", zh: "从…延伸"},
+    {en: "straight", zh: "直的"},
+    {en: "curved", zh: "弯曲的"},
+    {en: "winding", zh: "蜿蜒的，弯弯曲曲的"},
+    {en: "round", zh: "圆形的"},
+    {en: "circular", zh: "环形的，圆形的"},
+    {en: "river bank", zh: "河岸，河堤"},
+    {en: "elevator", zh: "电梯"},
+    {en: "escalator", zh: "手扶梯"},
+    {en: "stairs", zh: "楼梯"},
+    {en: "northern", zh: "北方的"},
+    {en: "southern", zh: "南方的"},
+    {en: "round about", zh: "环状路，环岛"},
+    {en: "back door", zh: "后门"},
+    {en: "bench", zh: "长椅"},
+    {en: "newsstand", zh: "报刊亭"},
+    {en: "traffic island", zh: "交通岛"},
+    {en: "overpass", zh: "立交桥"},
+    {en: "trees", zh: "树"},
+    {en: "woods", zh: "树"},
+    {en: "foyer", zh: "大厅"},
+    {en: "lounge", zh: "等候室"},
+    {en: "reception", zh: "前台"},
+    {en: "block", zh: "街区"},
+    {en: "row", zh: "排"},
+    {en: "widen", zh: "拓宽"},
+    {en: "enlarge", zh: "扩大"},
+    {en: "separate", zh: "分开的，隔开的"},
+    {en: "alone", zh: "沿着…的方向"},
+    {en: "pound", zh: "池塘"}
+  ]
+};
+
+function getDataByChapter(chapter) {
+  if (chapter === "house") return houseData;
+  else if (chapter === "travel") return travelData;
+  else if (chapter === "membership") return membershipData;
+  else if (chapter === "car") return carData;
+  else if (chapter === "bank") return bankData;
+  else if (chapter === "coursedelivery") return courseDeliveryData;
+  else if (chapter === "assignment") return assignmentData;
+  else if (chapter === "library") return libraryData;
+  else if (chapter === "collegefac") return collegeFacilitiesData;
+  else if (chapter === "economics") return economicsData;
+  else if (chapter === "biology") return biologyData;
+  else if (chapter === "agriculture") return agricultureData;
+  else if (chapter === "environment") return environmentData;
+  else if (chapter === "geography") return geographyData;
+  else if (chapter === "chemistry") return chemistryData;
+  else if (chapter === "map") return mapData;
+}
+
+let currentMode = 'study'; 
+let availableVoices = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  populateSectionSelect();
+  renderStudyTable();
+});
+
+// 加载语音
+function loadVoices() {
+  availableVoices = speechSynthesis.getVoices();
+}
+
+const chapterSelect = document.getElementById('chapterSelect');
+const sectionSelect = document.getElementById('sectionSelect');
+const studyModeContainer = document.getElementById('studyModeContainer');
+const testModeContainer = document.getElementById('testModeContainer');
+const testItemsContainer = document.getElementById('testItemsContainer');
+const testResultContainer = document.getElementById('testResultContainer');
+const startTestBtn = document.getElementById('startTestBtn');
+const endTestBtn = document.getElementById('endTestBtn');
+const checkAnswersBtn = document.getElementById('checkAnswersBtn');
+
+// 初始化部分下拉框
+function populateSectionSelect() {
+  sectionSelect.innerHTML = '';
+  const data = getDataByChapter(chapterSelect.value);
+  for (let sectionName in data) {
+    const opt = document.createElement('option');
+    opt.value = sectionName;
+    opt.textContent = sectionName;
+    sectionSelect.appendChild(opt);
+  }
+}
+
+function getCurrentData() {
+  const chapterVal = chapterSelect.value;
+  const sectionVal = sectionSelect.value;
+  const data = getDataByChapter(chapterVal);
+  return data[sectionVal];
+}
+
+function renderStudyTable() {
+  const words = getCurrentData();
+  let html = '<table>';
+  html += '<tr><th>英文</th><th>中文释义</th></tr>';
+  words.forEach(item => {
+    html += `<tr>
+      <td class="english-word" data-text="${item.en}">${item.en}</td>
+      <td>${item.zh}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  studyModeContainer.innerHTML = html;
+
+  document.querySelectorAll('.english-word').forEach(el => {
+    el.addEventListener('click', () => {
+      speak(el.dataset.text);
+    });
+  });
+}
+
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    // 在发声前先取消当前可能未结束的朗读
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+
+    let selectedVoice = availableVoices.find(voice => 
+      voice.name.includes('Google UK English Female')
+    );
+    if (!selectedVoice) {
+      selectedVoice = availableVoices.find(voice => voice.lang.startsWith('en'));
+    }
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
+    speechSynthesis.speak(utterance);
+  } else {
+    alert('Your browser does not support speech synthesis.');
+  }
+}
+
+function switchToTestMode() {
+  currentMode = 'test';
+  studyModeContainer.classList.add('hidden');
+  testModeContainer.classList.remove('hidden');
+  endTestBtn.classList.remove('hidden');
+  startTestBtn.classList.add('hidden');
+  renderTestItems();
+}
+
+function switchToStudyMode() {
+  currentMode = 'study';
+  studyModeContainer.classList.remove('hidden');
+  testModeContainer.classList.add('hidden');
+  endTestBtn.classList.add('hidden');
+  startTestBtn.classList.remove('hidden');
+  testResultContainer.innerHTML = '';
+}
+
+function renderTestItems() {
+  const words = getCurrentData();
+  let html = '';
+  words.forEach((item) => {
+    html += `<div class="test-item">
+      <label>${item.zh}：</label>
+      <input type="text" class="test-input" data-answer="${item.en}" />
+    </div>`;
+  });
+  testItemsContainer.innerHTML = html;
+  // 添加回车键跳转到下一个输入框的功能
+  const inputs = testItemsContainer.querySelectorAll('.test-input');
+  inputs.forEach((input, index) => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault(); // 防止表单提交或其他默认行为
+        if (index < inputs.length - 1) {
+          inputs[index + 1].focus(); // 聚焦下一个输入框
+        } else {
+          checkAnswersBtn.focus(); // 如果是最后一个输入框，聚焦“检查”按钮
+        }
+      }
+    });
+  });
+}
+
+function checkAnswers() {
+  testResultContainer.innerHTML = ''; // 清空之前的测试结果
+  
+  const inputs = testItemsContainer.querySelectorAll('.test-input');
+  let correctCount = 0;
+  inputs.forEach(input => {
+    const userAnswer = input.value.trim().toLowerCase();
+    const correctAnswer = input.dataset.answer.trim().toLowerCase();
+    if (userAnswer === correctAnswer) {
+      correctCount++;
+      input.style.border = '2px solid green';
+    } else {
+      input.style.border = '2px solid red';
+      const p = document.createElement('p');
+      p.className = 'result-wrong';
+      p.textContent = `【${input.previousElementSibling.textContent.replace('：','')}】 您的答案：“${userAnswer}” ，正确答案：“${correctAnswer}”`;
+      testResultContainer.appendChild(p);
+    }
+  });
+  const total = inputs.length;
+  testResultContainer.insertAdjacentHTML('afterbegin', `<p>总共 ${total} 道题，正确 ${correctCount} 道。</p>`);
+}
+
+// 事件绑定
+chapterSelect.addEventListener('change', () => {
+  populateSectionSelect();
+  if (currentMode === 'study') {
+    renderStudyTable();
+  } else {
+    renderTestItems();
+  }
+});
+
+sectionSelect.addEventListener('change', () => {
+  if (currentMode === 'study') {
+    renderStudyTable();
+  } else {
+    renderTestItems();
+  }
+});
+
+startTestBtn.addEventListener('click', switchToTestMode);
+endTestBtn.addEventListener('click', switchToStudyMode);
+checkAnswersBtn.addEventListener('click', checkAnswers);
+
+</script>
+</body>
+</html>
