@@ -150,6 +150,10 @@ table tr:nth-child(even) {
     </select>
   </label>
 
+  <label>
+    <input type="checkbox" id="shuffleCheckbox" /> 默写时打乱顺序
+  </label>
+
   <button id="startTestBtn">开始默写测试</button>
   <button id="endTestBtn" class="hidden">结束默写测试</button>
 </div>
@@ -1195,17 +1199,56 @@ function switchToStudyMode() {
 //   });
 // }
 
+// function renderTestItems() {
+//   const words = getCurrentData();
+
+//   // 创建单词的浅拷贝，以避免修改原始数据
+//   const shuffledWords = [...words];
+  
+//   // 打乱单词顺序
+//   shuffleArray(shuffledWords);
+  
+//   let html = '';
+//   shuffledWords.forEach((item) => {
+//     html += `<div class="test-item">
+//       <label>${item.zh}：</label>
+//       <input type="text" class="test-input" data-answer="${item.en}" />
+//     </div>`;
+//   });
+//   testItemsContainer.innerHTML = html;
+  
+//   // 添加回车键跳转到下一个输入框的功能
+//   const inputs = testItemsContainer.querySelectorAll('.test-input');
+//   inputs.forEach((input, index) => {
+//     input.addEventListener('keydown', (e) => {
+//       if (e.key === 'Enter') {
+//         e.preventDefault(); // 防止表单提交或其他默认行为
+//         if (index < inputs.length - 1) {
+//           inputs[index + 1].focus(); // 聚焦下一个输入框
+//         } else {
+//           checkAnswersBtn.focus(); // 如果是最后一个输入框，聚焦“检查”按钮
+//         }
+//       }
+//     });
+//   });
+// }
+
 function renderTestItems() {
   const words = getCurrentData();
 
+  // 获取用户是否选择打乱顺序
+  const shuffle = document.getElementById('shuffleCheckbox').checked;
+
   // 创建单词的浅拷贝，以避免修改原始数据
-  const shuffledWords = [...words];
+  let displayWords = [...words];
   
-  // 打乱单词顺序
-  shuffleArray(shuffledWords);
-  
+  // 根据用户选择决定是否打乱单词顺序
+  if (shuffle) {
+    shuffleArray(displayWords);
+  }
+
   let html = '';
-  shuffledWords.forEach((item) => {
+  displayWords.forEach((item) => {
     html += `<div class="test-item">
       <label>${item.zh}：</label>
       <input type="text" class="test-input" data-answer="${item.en}" />
