@@ -120,7 +120,7 @@ table tr:nth-child(even) {
 </head>
 <body>
 
-<h1>词汇学习与默写测试</h1>
+<h1>TestMyVocab</h1>
 
 <div class="controls">
   <label>选择章节：
@@ -166,6 +166,8 @@ table tr:nth-child(even) {
 
 <script>
 // 原有章节数据
+let selectedVoice = null; // 全局变量，用于存储选定的语音
+
 const houseData = {
   "People": [
     {en: "landlord", zh: "房东"},
@@ -1034,16 +1036,37 @@ let availableVoices = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   loadVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = loadVoices;
+  // if (speechSynthesis.onvoiceschanged !== undefined) {
+  //   speechSynthesis.onvoiceschanged = loadVoices;
+  // }
+  // populateSectionSelect();
+  // renderStudyTable();
+    // 监听语音变化，确保语音加载完成后进行操作
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => {
+      loadVoices();
+      populateSectionSelect();
+      renderStudyTable();
+    };
+  } else {
+    populateSectionSelect();
+    renderStudyTable();
   }
-  populateSectionSelect();
-  renderStudyTable();
 });
 
 // 加载语音
 function loadVoices() {
   availableVoices = speechSynthesis.getVoices();
+
+  // 预先选择并存储语音
+  selectedVoice = availableVoices.find(voice => 
+    voice.name.includes('Google UK English Female')
+  );
+  
+  // 如果没有找到特定的语音，选择第一个英语语音
+  if (!selectedVoice) {
+    selectedVoice = availableVoices.find(voice => voice.lang.startsWith('en'));
+  }
 }
 
 const chapterSelect = document.getElementById('chapterSelect');
@@ -1055,6 +1078,14 @@ const testResultContainer = document.getElementById('testResultContainer');
 const startTestBtn = document.getElementById('startTestBtn');
 const endTestBtn = document.getElementById('endTestBtn');
 const checkAnswersBtn = document.getElementById('checkAnswersBtn');
+
+//添加数组洗牌函数
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
 
 // 初始化部分下拉框
 function populateSectionSelect() {
@@ -1103,12 +1134,12 @@ function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
 
-    let selectedVoice = availableVoices.find(voice => 
-      voice.name.includes('Google UK English Female')
-    );
-    if (!selectedVoice) {
-      selectedVoice = availableVoices.find(voice => voice.lang.startsWith('en'));
-    }
+    // let selectedVoice = availableVoices.find(voice => 
+    //   voice.name.includes('Google UK English Female')
+    // );
+    // if (!selectedVoice) {
+    //   selectedVoice = availableVoices.find(voice => voice.lang.startsWith('en'));
+    // }
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
@@ -1138,16 +1169,50 @@ function switchToStudyMode() {
   testResultContainer.innerHTML = '';
 }
 
+// function renderTestItems() {
+//   const words = getCurrentData();
+//   let html = '';
+//   words.forEach((item) => {
+//     html += `<div class="test-item">
+//       <label>${item.zh}：</label>
+//       <input type="text" class="test-input" data-answer="${item.en}" />
+//     </div>`;
+//   });
+//   testItemsContainer.innerHTML = html;
+//   // 添加回车键跳转到下一个输入框的功能
+//   const inputs = testItemsContainer.querySelectorAll('.test-input');
+//   inputs.forEach((input, index) => {
+//     input.addEventListener('keydown', (e) => {
+//       if (e.key === 'Enter') {
+//         e.preventDefault(); // 防止表单提交或其他默认行为
+//         if (index < inputs.length - 1) {
+//           inputs[index + 1].focus(); // 聚焦下一个输入框
+//         } else {
+//           checkAnswersBtn.focus(); // 如果是最后一个输入框，聚焦“检查”按钮
+//         }
+//       }
+//     });
+//   });
+// }
+
 function renderTestItems() {
   const words = getCurrentData();
+
+  // 创建单词的浅拷贝，以避免修改原始数据
+  const shuffledWords = [...words];
+  
+  // 打乱单词顺序
+  shuffleArray(shuffledWords);
+  
   let html = '';
-  words.forEach((item) => {
+  shuffledWords.forEach((item) => {
     html += `<div class="test-item">
       <label>${item.zh}：</label>
       <input type="text" class="test-input" data-answer="${item.en}" />
     </div>`;
   });
   testItemsContainer.innerHTML = html;
+  
   // 添加回车键跳转到下一个输入框的功能
   const inputs = testItemsContainer.querySelectorAll('.test-input');
   inputs.forEach((input, index) => {
@@ -1166,7 +1231,7 @@ function renderTestItems() {
 
 function checkAnswers() {
   testResultContainer.innerHTML = ''; // 清空之前的测试结果
-  
+
   const inputs = testItemsContainer.querySelectorAll('.test-input');
   let correctCount = 0;
   inputs.forEach(input => {
